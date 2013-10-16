@@ -29,6 +29,10 @@
             android:name="org.davidlin.googleimagesearch.ImageDisplayActivity"
             android:label="@string/title_activity_image_result" >
         </activity>
+        <activity
+            android:name="org.davidlin.googleimagesearch.SettingsActivity"
+            android:label="@string/title_activity_settings" >
+        </activity>
     </application>
 
 </manifest>

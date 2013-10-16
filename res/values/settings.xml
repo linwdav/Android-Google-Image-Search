@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string-array name="sizes">
+	    <item>none</item>
+		<item>small</item>
+		<item>medium</item>
+		<item>large</item>
+		<item>extra-large</item>
+	</string-array>
+	<string-array name="colorfilter">
+	    <item>none</item>
+		<item>black</item>
+		<item>blue</item>
+		<item>brown</item>
+		<item>gray</item>
+	</string-array>
+	<string-array name="type">
+	    <item>none</item>
+		<item>faces</item>
+		<item>photo</item>
+		<item>clip art</item>
+		<item>line art</item>
+	</string-array>
+</resources>
