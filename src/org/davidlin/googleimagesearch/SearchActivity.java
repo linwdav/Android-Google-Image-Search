@@ -31,6 +31,8 @@ public class SearchActivity extends Activity {
 	
 	private static final String LOGTAG = "org.davidlin.debug";
 	private static int startCounter = 0;
+	private static final int IMAGE_COUNT_PER_PAGE = 4;
+	private static final int INITIAL_IMAGE_COUNT = 20;
 	
 	private EditText etSearchBox;
 	private GridView gvImages;
@@ -66,18 +68,45 @@ public class SearchActivity extends Activity {
 	private void setupViews() {
 		etSearchBox = (EditText) findViewById(R.id.etSearchBox);
 		gvImages = (GridView) findViewById(R.id.gvImages);
+		final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
 		gvImages.setOnScrollListener(new EndlessScrollListener() {
 
 			@Override
 			public void onLoadMore(int page, int totalItemsCount) {
 				Log.d(LOGTAG, "Page is " + page);
 				Log.d(LOGTAG, "Item count is " + totalItemsCount);
+				
+				String searchTerm = etSearchBox.getText().toString();
+				
+				String size = pref.getString("size", "none");
+				String colorfilter = pref.getString("colorfilter", "none");
+				String type = pref.getString("type", "none");
+				String sitefilter = pref.getString("sitefilter", "");
+				
+				String query = "https://ajax.googleapis.com/ajax/services/search/images?v=1.0&start=" + startCounter + "&q=" + Uri.encode(searchTerm);
+				if ("none".compareTo(size) != 0) {
+					query += "&imgsz=" + Uri.encode(size);
+				}
+				if ("none".compareTo(colorfilter) != 0) {
+					query += "&imgcolor=" + Uri.encode(colorfilter);
+				}
+				if ("none".compareTo(type) != 0) {
+					query += "&imgtype=" + Uri.encode(type);
+				}
+				if ("".compareTo(sitefilter) != 0) {
+					query += "&as_sitesearch=" + Uri.encode(sitefilter);
+				}
+				getImages(query);
+				
+				startCounter += IMAGE_COUNT_PER_PAGE;
 			}
 			
 		});
 	}
 	
 	public void performSearch(View v) {
+		startCounter = 0;
+		
 		// Grab search term
 		String searchTerm = etSearchBox.getText().toString();
 		Toast.makeText(getApplicationContext(), "Searching for " + searchTerm, Toast.LENGTH_SHORT).show();
@@ -89,7 +118,7 @@ public class SearchActivity extends Activity {
 		String sitefilter = pref.getString("sitefilter", "");
 		
 		imageArray.clear();
-		for (; startCounter <= 16 ; startCounter += 4) {
+		for (; startCounter < INITIAL_IMAGE_COUNT ; startCounter += IMAGE_COUNT_PER_PAGE) {
 			String query = "https://ajax.googleapis.com/ajax/services/search/images?v=1.0&start=" + startCounter + "&q=" + Uri.encode(searchTerm);
 			if ("none".compareTo(size) != 0) {
 				query += "&imgsz=" + Uri.encode(size);
