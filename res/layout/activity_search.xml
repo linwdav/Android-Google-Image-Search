@@ -6,7 +6,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".MainActivity" >
+    tools:context=".SearchActivity" >
 
     <Button
         android:id="@+id/btSearch"
@@ -15,7 +15,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:onClick="imageSearch"
-        android:text="Search" />
+        android:text="@string/search" />
 
     <EditText
         android:id="@+id/etSearchBox"
@@ -24,7 +24,7 @@
         android:layout_alignBottom="@+id/btSearch"
         android:layout_toLeftOf="@+id/btSearch"
         android:ems="10"
-        android:hint="Enter image search" >
+        android:hint="@string/enter_image_search" >
 
         <requestFocus />
     </EditText>
@@ -35,7 +35,11 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/etSearchBox"
-        android:numColumns="3" >
+        android:numColumns="3"
+        android:paddingTop="10dp"
+        android:horizontalSpacing="5dp"
+        android:verticalSpacing="15dp" >
+
     </GridView>
 
 </RelativeLayout>

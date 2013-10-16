@@ -15,7 +15,7 @@ public class ImageResult {
 	
 	public ImageResult(JSONObject json) {
 		try {
-			this.title = json.getString("title");
+			this.title = json.getString("titleNoFormatting");
 			this.fullUrl = json.getString("url");
 			this.thumbUrl = json.getString("tbUrl");
 		} catch (JSONException e) {
@@ -34,6 +34,10 @@ public class ImageResult {
 	public String getTbUrl() {
 		return thumbUrl;
 	}
+	
+	public String toString() {
+		return "Title=" + this.title + " | thumbUrl=" + this.thumbUrl;
+	}
 
 	public static List<ImageResult> fromJSONArray(JSONArray imageJsonResults) {
 		List<ImageResult> imageArray = new ArrayList<ImageResult>();
@@ -44,7 +48,7 @@ public class ImageResult {
 				e.printStackTrace();
 			}
 		}
-		return null;
+		return imageArray;
 	}
 	
 }

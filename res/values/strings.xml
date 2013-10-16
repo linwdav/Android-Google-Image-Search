@@ -3,5 +3,9 @@
 
     <string name="app_name">Google Image Search</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_image_result">ImageResultActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="search">Search</string>
+    <string name="enter_image_search">Enter image search</string>
 
 </resources>

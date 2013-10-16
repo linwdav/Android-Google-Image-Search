@@ -13,24 +13,42 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.Intent;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.Toast;
 
-public class MainActivity extends Activity {
+public class SearchActivity extends Activity {
 	
 	private static final String LOGTAG = "org.davidlin.debug";
-	private EditText searchBox;
-	private GridView imageGrid;
-	private List<ImageResult> imageList = new ArrayList<ImageResult>();
+	private EditText etSearchBox;
+	private GridView gvImages;
+	private List<ImageResult> imageArray = new ArrayList<ImageResult>();
+	private ImageResultArrayAdapter imageAdapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+		setContentView(R.layout.activity_search);
 		setupViews();
+		imageAdapter = new ImageResultArrayAdapter(this, imageArray);
+		gvImages.setAdapter(imageAdapter);
+		gvImages.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> adapter, View parent, int position, long arg3) {
+				Intent i = new Intent(getApplicationContext(), ImageDisplayActivity.class);
+				ImageResult imageResult = imageArray.get(position);
+				i.putExtra("url", imageResult.getUrl());
+				startActivity(i);
+			}
+			
+		});
 	}
 
 	@Override
@@ -40,29 +58,30 @@ public class MainActivity extends Activity {
 	}
 	
 	private void setupViews() {
-		searchBox = (EditText) findViewById(R.id.etSearchBox);
-		imageGrid = (GridView) findViewById(R.id.gvImages);
+		etSearchBox = (EditText) findViewById(R.id.etSearchBox);
+		gvImages = (GridView) findViewById(R.id.gvImages);
 	}
 	
 	public void imageSearch(View v) {
 		// Grab search term
-		String searchTerm = searchBox.getText().toString();
+		String searchTerm = etSearchBox.getText().toString();
 		Toast.makeText(getApplicationContext(), "Searching for " + searchTerm, Toast.LENGTH_SHORT).show();
 		
 		AsyncHttpClient client = new AsyncHttpClient();
 		client.get("https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=" + Uri.encode(searchTerm), new JsonHttpResponseHandler() {
-		        @Override
-		        public void onSuccess(JSONObject response) {
-		            //Log.d(LOGTAG, response);
-		        	JSONArray imageJsonResults;
-		        	try {
+				@Override
+				public void onSuccess(JSONObject response) {
+				    //Log.d(LOGTAG, response);
+					JSONArray imageJsonResults;
+					try {
 						imageJsonResults = response.getJSONObject("responseData").getJSONArray("results");
-						imageList.clear();
-						imageList.addAll(ImageResult.fromJSONArray(imageJsonResults));
+						imageArray.clear();
+						imageAdapter.addAll(ImageResult.fromJSONArray(imageJsonResults));
+						Log.d(LOGTAG, imageArray.toString());
 					} catch (JSONException e) {
 						e.printStackTrace();
 					}
-		        }
+				}
 		    }
 		);
 	}
