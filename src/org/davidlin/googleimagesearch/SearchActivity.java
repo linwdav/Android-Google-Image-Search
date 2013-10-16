@@ -16,6 +16,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -26,6 +27,7 @@ import android.widget.Toast;
 public class SearchActivity extends Activity {
 	
 	private static final String LOGTAG = "org.davidlin.debug";
+	
 	private EditText etSearchBox;
 	private GridView gvImages;
 	private List<ImageResult> imageArray = new ArrayList<ImageResult>();
@@ -62,28 +64,38 @@ public class SearchActivity extends Activity {
 		gvImages = (GridView) findViewById(R.id.gvImages);
 	}
 	
-	public void imageSearch(View v) {
+	public void onSearchButtonClicked(View v) {
 		// Grab search term
 		String searchTerm = etSearchBox.getText().toString();
 		Toast.makeText(getApplicationContext(), "Searching for " + searchTerm, Toast.LENGTH_SHORT).show();
 		
+		imageArray.clear();
+		for (int i = 0; i <= 8 ; i+=4) {
+			String query = "https://ajax.googleapis.com/ajax/services/search/images?v=1.0&start=" + i + "&q=" + Uri.encode(searchTerm);
+			getImages(query);
+		}
+	}
+	
+	public void getImages(String query) {
 		AsyncHttpClient client = new AsyncHttpClient();
-		client.get("https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=" + Uri.encode(searchTerm), new JsonHttpResponseHandler() {
+		client.get(query, new JsonHttpResponseHandler() {
 				@Override
 				public void onSuccess(JSONObject response) {
-				    //Log.d(LOGTAG, response);
 					JSONArray imageJsonResults;
 					try {
 						imageJsonResults = response.getJSONObject("responseData").getJSONArray("results");
-						imageArray.clear();
 						imageAdapter.addAll(ImageResult.fromJSONArray(imageJsonResults));
-						Log.d(LOGTAG, imageArray.toString());
+						//Log.d(LOGTAG, imageArray.toString());
 					} catch (JSONException e) {
 						e.printStackTrace();
 					}
 				}
 		    }
 		);
+	}
+	
+	public void onSettingsButtonClicked(MenuItem mi) {
+		
 	}
 
 }

@@ -36,7 +36,7 @@ public class ImageResult {
 	}
 	
 	public String toString() {
-		return "Title=" + this.title + " | thumbUrl=" + this.thumbUrl;
+		return this.thumbUrl;
 	}
 
 	public static List<ImageResult> fromJSONArray(JSONArray imageJsonResults) {

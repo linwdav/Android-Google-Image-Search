@@ -1,6 +1,5 @@
 package org.davidlin.googleimagesearch;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.loopj.android.image.SmartImageView;
@@ -12,12 +11,9 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
 public class ImageResultArrayAdapter extends ArrayAdapter<ImageResult> {
-
-	List<ImageResult> imageArray = new ArrayList<ImageResult>();
 	
 	public ImageResultArrayAdapter(Context context, List<ImageResult> imageArray) {
 		super(context, R.layout.item_image, imageArray);
-		this.imageArray = imageArray;
 	}
 
 	@Override
