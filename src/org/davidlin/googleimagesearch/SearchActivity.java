@@ -100,7 +100,6 @@ public class SearchActivity extends Activity {
 		}
 		else {
 			stopIndex = currentImageIndex + IMAGE_COUNT_PER_PAGE;
-			Toast.makeText(getApplicationContext(), "Loading more images ", Toast.LENGTH_SHORT).show();
 		}
 		
 		for (; currentImageIndex <= stopIndex && currentImageIndex < MAX_IMAGE_INDEX; currentImageIndex += IMAGE_COUNT_PER_PAGE) {
