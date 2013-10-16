@@ -30,9 +30,10 @@ import android.widget.Toast;
 public class SearchActivity extends Activity {
 	
 	private static final String LOGTAG = "org.davidlin.debug";
-	private static int startCounter = 0;
+	private static final int INITIAL_ENDING_IMAGE_INDEX = 12;
 	private static final int IMAGE_COUNT_PER_PAGE = 4;
-	private static final int INITIAL_IMAGE_COUNT = 20;
+	private static final int MAX_IMAGE_INDEX = 64;
+	private static int currentImageIndex = 0;
 	
 	private EditText etSearchBox;
 	private GridView gvImages;
@@ -44,19 +45,6 @@ public class SearchActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_search);
 		setupViews();
-		imageAdapter = new ImageResultArrayAdapter(this, imageArray);
-		gvImages.setAdapter(imageAdapter);
-		gvImages.setOnItemClickListener(new OnItemClickListener() {
-
-			@Override
-			public void onItemClick(AdapterView<?> adapter, View parent, int position, long arg3) {
-				Intent i = new Intent(getApplicationContext(), ImageDisplayActivity.class);
-				ImageResult imageResult = imageArray.get(position);
-				i.putExtra("url", imageResult.getUrl());
-				startActivity(i);
-			}
-			
-		});
 	}
 
 	@Override
@@ -68,48 +56,36 @@ public class SearchActivity extends Activity {
 	private void setupViews() {
 		etSearchBox = (EditText) findViewById(R.id.etSearchBox);
 		gvImages = (GridView) findViewById(R.id.gvImages);
-		final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
 		gvImages.setOnScrollListener(new EndlessScrollListener() {
-
 			@Override
 			public void onLoadMore(int page, int totalItemsCount) {
 				Log.d(LOGTAG, "Page is " + page);
-				Log.d(LOGTAG, "Item count is " + totalItemsCount);
-				
-				String searchTerm = etSearchBox.getText().toString();
-				
-				String size = pref.getString("size", "none");
-				String colorfilter = pref.getString("colorfilter", "none");
-				String type = pref.getString("type", "none");
-				String sitefilter = pref.getString("sitefilter", "");
-				
-				String query = "https://ajax.googleapis.com/ajax/services/search/images?v=1.0&start=" + startCounter + "&q=" + Uri.encode(searchTerm);
-				if ("none".compareTo(size) != 0) {
-					query += "&imgsz=" + Uri.encode(size);
-				}
-				if ("none".compareTo(colorfilter) != 0) {
-					query += "&imgcolor=" + Uri.encode(colorfilter);
-				}
-				if ("none".compareTo(type) != 0) {
-					query += "&imgtype=" + Uri.encode(type);
-				}
-				if ("".compareTo(sitefilter) != 0) {
-					query += "&as_sitesearch=" + Uri.encode(sitefilter);
-				}
-				getImages(query);
-				
-				startCounter += IMAGE_COUNT_PER_PAGE;
+				Log.d(LOGTAG, "Total item count is " + totalItemsCount);
+				performSearch();
 			}
-			
+		});
+		imageAdapter = new ImageResultArrayAdapter(this, imageArray);
+		gvImages.setAdapter(imageAdapter);
+		gvImages.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> adapter, View parent, int position, long arg3) {
+				Intent i = new Intent(getApplicationContext(), ImageDisplayActivity.class);
+				ImageResult imageResult = imageArray.get(position);
+				i.putExtra("url", imageResult.getUrl());
+				startActivity(i);
+			}
 		});
 	}
 	
-	public void performSearch(View v) {
-		startCounter = 0;
-		
+	public void performNewSearch(View v) {
+		imageAdapter.clear();
+		currentImageIndex = 0;
+		performSearch();
+	}
+	
+	public void performSearch() {
 		// Grab search term
 		String searchTerm = etSearchBox.getText().toString();
-		Toast.makeText(getApplicationContext(), "Searching for " + searchTerm, Toast.LENGTH_SHORT).show();
 		
 		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
 		String size = pref.getString("size", "none");
@@ -117,9 +93,18 @@ public class SearchActivity extends Activity {
 		String type = pref.getString("type", "none");
 		String sitefilter = pref.getString("sitefilter", "");
 		
-		imageArray.clear();
-		for (; startCounter < INITIAL_IMAGE_COUNT ; startCounter += IMAGE_COUNT_PER_PAGE) {
-			String query = "https://ajax.googleapis.com/ajax/services/search/images?v=1.0&start=" + startCounter + "&q=" + Uri.encode(searchTerm);
+		int stopIndex;
+		if (currentImageIndex == 0) {
+			stopIndex = INITIAL_ENDING_IMAGE_INDEX;
+			Toast.makeText(getApplicationContext(), "Searching for " + searchTerm, Toast.LENGTH_SHORT).show();
+		}
+		else {
+			stopIndex = currentImageIndex + IMAGE_COUNT_PER_PAGE;
+			Toast.makeText(getApplicationContext(), "Loading more images ", Toast.LENGTH_SHORT).show();
+		}
+		
+		for (; currentImageIndex <= stopIndex && currentImageIndex < MAX_IMAGE_INDEX; currentImageIndex += IMAGE_COUNT_PER_PAGE) {
+			String query = "https://ajax.googleapis.com/ajax/services/search/images?v=1.0&start=" + currentImageIndex + "&q=" + Uri.encode(searchTerm);
 			if ("none".compareTo(size) != 0) {
 				query += "&imgsz=" + Uri.encode(size);
 			}
@@ -171,7 +156,7 @@ public class SearchActivity extends Activity {
 			edit.putString("sitefilter", data.getStringExtra("sitefilter"));
 			edit.commit();
 			
-			performSearch(null);
+			performNewSearch(null);
 		}
 	}
 
